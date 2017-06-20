@@ -42,7 +42,7 @@ def splittexttolines(text, linelength):
     EXAMPLE:
         comment = "De Bello Gallico\nJulius Caesar\nGallia est omnis divisa in partes tres, quarum unam incolunt Belgae, aliam Aquitani, tertiam qui ipsorum lingua Celtae, nostra Galli appellantur. Hi omnes lingua, institutis, legibus inter se differunt. Gallos ab Aquitanis Garumna flumen, a Belgis Matrona et Sequana dividit. Horum omnium fortissimi sunt Belgae, propterea quod a cultu atque humanitate provinciae longissime absunt, minimeque ad eos mercatores saepe commeant atque ea quae ad effeminandos animos pertinent important, proximique sunt Germanis, qui trans Rhenum incolunt, quibuscum continenter bellum gerunt. Qua de causa Helvetii quoque reliquos Gallos virtute praecedunt, quod fere cotidianis proeliis cum Germanis contendunt, cum aut suis finibus eos prohibent aut ipsi in eorum finibus bellum gerunt. Eorum una, pars, quam Gallos obtinere dictum est, initium capit a flumine Rhodano, continetur Garumna flumine, Oceano, finibus Belgarum, attingit etiam ab Sequanis et Helvetiis flumen Rhenum, vergit ad septentriones."
         output = splittexttolines(comment, 64)
-    """ 
+    """
     newline = ''
     linelst = text.split('\n')
     output = []
@@ -406,7 +406,7 @@ def writeIAGA(datastream, filename, **kwargs):
         datacomp = datacomp+'G'
     elif favail and useg:
         datacomp = datacomp+'G'
-    else: 
+    else:
         datacomp = datacomp+'F'
 
     """
@@ -487,7 +487,7 @@ def writeIAGA(datastream, filename, **kwargs):
 
         sf = header.get('DataSamplingFilter','')
         sflist = sf.split()
-       
+
         if len(sflist) > 3:
             #try:
             filtercomment = '{} filter with {} {} passband{}'.format(sflist[0],sflist[-2],sflist[-1],filteradd)

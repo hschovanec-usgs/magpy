@@ -1911,7 +1911,6 @@ class AnalysisFilterDialog(wx.Dialog):
 
         self.SetSizerAndFit(boxSizer)
 
-
 class AnalysisOffsetDialog(wx.Dialog):
     """
     Dialog for Stream panel
@@ -2502,7 +2501,7 @@ class DISaveDialog(wx.Dialog):
         self.choice = ''
         self.createControls()
         self.doLayout()
-        self.bindControls()
+        #self.bindControls()
 
     # Widgets
     def createControls(self):

@@ -47,7 +47,7 @@ class OpenWebAddressDialog(wx.Dialog):
 
         self.okButton = wx.Button(self, wx.ID_OK, label='Connect')
         self.closeButton = wx.Button(self, label='Cancel',size=(160,30))
-
+        
 
     def doLayout(self):
         # A horizontal BoxSizer will contain the GridSizer (on the left)
@@ -329,7 +329,7 @@ class ExportDataDialog(wx.Dialog):
             if not year == 'unspecified':
                 try:
                     blvyear = int(year)
-                except:
+                except: 
                     blvyear = None
             else:
                 blvyear = None
@@ -626,9 +626,9 @@ class OptionsInitDialog(wx.Dialog):
 
         f = self.dboptLabel.GetFont()
         newf = wx.Font(14, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
-        self.dboptLabel.SetFont(newf)
-        self.basicLabel.SetFont(newf)
-        self.calcLabel.SetFont(newf)
+        self.dboptLabel.SetFont(newf) 
+        self.basicLabel.SetFont(newf) 
+        self.calcLabel.SetFont(newf) 
 
     def doLayout(self):
         # A horizontal BoxSizer will contain the GridSizer (on the left)
@@ -782,8 +782,8 @@ class OptionsDIDialog(wx.Dialog):
 
         f = self.DIInputLabel.GetFont()
         newf = wx.Font(14, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
-        self.DIInputLabel.SetFont(newf)
-        self.DIDefaultsLabel.SetFont(newf)
+        self.DIInputLabel.SetFont(newf) 
+        self.DIDefaultsLabel.SetFont(newf) 
         self.DIPathsLabel.SetFont(newf)
 
         self.sheetdoubleCheckBox.SetValue(self.sheetdouble)
@@ -931,7 +931,7 @@ class StreamExtractValuesDialog(wx.Dialog):
             style=wx.CB_DROPDOWN, value=self.comparelst[0],size=(160,-1))
         self.value3TextCtrl = wx.TextCtrl(self, value="")
         self.okButton = wx.Button(self, wx.ID_OK, label='Extract')
-        self.closeButton = wx.Button(self, label='Cancel')
+        self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel')
 
 
     def doLayout(self):
@@ -1087,7 +1087,7 @@ class StreamPlotOptionsDialog(wx.Dialog):
         # Add the controls to the sizers:
         contlst = [[eval('(self.'+elem+'Text, noOptions)'),eval('(self.'+elem+'TextCtrl, expandOption)')] for elem in self.optdict]
         contlst = [y for x in contlst for y in x]
-
+  
         contlst.append((self.okButton, dict(flag=wx.ALIGN_CENTER)))
         contlst.append((self.closeButton, dict(flag=wx.ALIGN_CENTER)))
 
@@ -1204,7 +1204,7 @@ class StreamFlagRangeDialog(wx.Dialog):
         self.mintime = num2date(stream.ndarray[0][0])
         self.maxtime = num2date(stream.ndarray[0][-1])
         self.flagidlist = ['0: normal data', '1: automatically flagged', '2: keep data in any case', '3: remove data', '4: special flag']
-        self.comment = ''
+        self.comment = ''  
         #dt=wx.DateTimeFromTimeT(time.mktime(self.maxtime.timetuple()))
         self.ul = np.nanmax(self.stream.ndarray[KEYLIST.index(self.selectedkey)])
         self.ll = np.nanmin(self.stream.ndarray[KEYLIST.index(self.selectedkey)])
@@ -1398,7 +1398,7 @@ class StreamFlagSelectionDialog(wx.Dialog):
         self.keys2flag = ",".join(shownkeylist)
         self.keys=keylist
         self.flagidlist = ['0: normal data', '1: automatically flagged', '2: keep data in any case', '3: remove data', '4: special flag']
-        self.comment = ''
+        self.comment = ''  
         self.createControls()
         self.doLayout()
         self.bindControls()
@@ -1537,8 +1537,8 @@ class StreamLoadFlagDialog(wx.Dialog):
         self.Close(True)
 
     def OnLoadFile(self, e):
-        openFileDialog = wx.FileDialog(self, "Open", "", "",
-                                       "Flaglist (*.pkl)|*.pkl",
+        openFileDialog = wx.FileDialog(self, "Open", "", "", 
+                                       "Flaglist (*.pkl)|*.pkl", 
                                        wx.FD_OPEN | wx.FD_FILE_MUST_EXIST)
         openFileDialog.ShowModal()
         flagname = openFileDialog.GetPath()
@@ -1624,8 +1624,8 @@ class StreamSaveFlagDialog(wx.Dialog):
         self.Close(True)
 
     def OnSaveFile(self, e):
-        saveFileDialog = wx.FileDialog(self, "Save As", "", "",
-                                       "Flaglist (*.pkl)|*.pkl",
+        saveFileDialog = wx.FileDialog(self, "Save As", "", "", 
+                                       "Flaglist (*.pkl)|*.pkl", 
                                        wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         saveFileDialog.ShowModal()
         flagname = saveFileDialog.GetPath()
@@ -2007,10 +2007,10 @@ class AnalysisOffsetDialog(wx.Dialog):
     # Widgets
     def createControls(self):
         # Add a radio button on top:
-        # Offset certain timerange / all data
+        # Offset certain timerange / all data 
         self.offsetRadioBox = wx.RadioBox(self, label="Apply offset to:",
                      choices=self.choices, majorDimension=2, style=wx.RA_SPECIFY_COLS)
-
+         
         self.timeshiftLabel = wx.StaticText(self, label="Timeshift (sec):",size=(160,30))
         self.timeshiftTextCtrl = wx.TextCtrl(self, value=self.val.get('time','0'),size=(160,30))
 
@@ -2661,7 +2661,7 @@ class InputSheetDialog(wx.Dialog):
                 val = 999.0
 
         if not val >= -180 and not val <= 360:
-            return 999.
+            return 999. 
 
         def decdeg2dms(dd):
             is_positive = dd >= 0
@@ -2873,7 +2873,7 @@ class InputSheetDialog(wx.Dialog):
                         "F data checker", wx.OK|wx.ICON_INFORMATION)
                 checkdlg.ShowModal()
 
-        opstring.append("Result:")  # For historic reasons: eventually add results again
+        opstring.append("Result:")  # For historic reasons: eventually add results again 
 
 
         # Check block
@@ -2907,7 +2907,7 @@ class InputSheetDialog(wx.Dialog):
                 #print ("Name of the file: ", fo.name)
                 fo.writelines( opstring )
                 fo.close()
-
+        
 
 class SettingsPanel(scrolledpanel.ScrolledPanel):
     def __init__(self, parent, cdate, path, defaults, layout, db):
@@ -3105,8 +3105,8 @@ class SettingsPanel(scrolledpanel.ScrolledPanel):
 
         f = self.VerticalLabel.GetFont()
         newf = wx.Font(14, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
-        self.VerticalLabel.SetFont(newf)
-        self.HorizontalLabel.SetFont(newf)
+        self.VerticalLabel.SetFont(newf) 
+        self.HorizontalLabel.SetFont(newf) 
         self.AmireLabel.SetFont(newf)
         self.BmireLabel.SetFont(newf)
         self.HeadLabel.SetFont(newf)
@@ -3413,7 +3413,7 @@ class SettingsPanel(scrolledpanel.ScrolledPanel):
                 val = 999.0
 
         if not val >= -180 and not val <= 360:
-            return 999.
+            return 999. 
 
         def _decdeg2dms(dd):
             is_positive = dd >= 0
@@ -4022,7 +4022,7 @@ class MultiStreamDialog(wx.Dialog):
                             "Merge error", wx.OK|wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
-
+            
         #self.changeStatusbar("Ready")
 
 
@@ -4090,3 +4090,4 @@ class MultiStreamDialog(wx.Dialog):
                             "Subtract error", wx.OK|wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
+

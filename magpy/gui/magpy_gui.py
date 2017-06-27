@@ -319,7 +319,7 @@ class PlotPanel(wx.Panel):
         PARAMETERS:
             kwargs:  - all plot args
         """
-        # moved to MARTAS 
+        # moved to MARTAS
         pass
 
 
@@ -4048,7 +4048,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
                         "Adopted baseline", wx.OK|wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
-            
+
             self.ActivateControls(self.plotstream)
             self.OnPlot(self.plotstream,self.shownkeylist)
             self.changeStatusbar("BC function available - Ready")
@@ -5339,7 +5339,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
     # ################
     # ------------------------------------------------------------------------------------------
 
-    """     
+    """
     def onConnectMQTTButton(self, event):
         # start a subscribe to client call
         success = True
@@ -5440,7 +5440,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.menu_p.com_page.logMsg(' - IP: {}'.format(martasaddress))
             self.menu_p.com_page.coverageTextCtrl.Enable()    # always
             self.menu_p.com_page.frequSlider.Enable()         # always
-    """     
+    """
 
     def onConnectMARCOSButton(self, event):
         # active if database is connected
@@ -5551,7 +5551,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
             self.changeStatusbar("Scanning for MQTT broadcasts ... approx 20 sec")
 
-            
+
 
             loopcnt = 0
             success = True

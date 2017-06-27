@@ -910,7 +910,7 @@ class StreamExtractValuesDialog(wx.Dialog):
             style=wx.CB_DROPDOWN, value=self.comparelst[0],size=(160,-1))
         self.value3TextCtrl = wx.TextCtrl(self, value="")
         self.okButton = wx.Button(self, wx.ID_OK, label='Extract')
-        self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel')
+        self.closeButton = wx.Button(self, label='Cancel')
 
 
     def doLayout(self):
@@ -2146,7 +2146,7 @@ class AnalysisBaselineDialog(wx.Dialog):
         # RadioButton with fitting list (eventually updated from DB)
         #self.fitlistRadioBox = wx.RadioBox(self, label="Adoption parameter:",
         #             choices=self.fitlist, majorDimension=len(fitlist), style=wx.RA_SPECIFY_COLS)
-        
+
 
         self.parameterLabel = wx.StaticText(self, label="Fit parameter:",size=(160,30))
         self.parameterTextCtrl = wx.TextCtrl(self, value=self.parameterstring,size=(300,90),

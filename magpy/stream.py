@@ -16,9 +16,8 @@ import logging
 import os
 import sys
 import tempfile
-import json
 
-from magpy.config import *
+from magpy.config import get_config
 
 
 # ----------------------------------------------------------------------------

@@ -11,6 +11,7 @@ from __future__ import division
 from io import open
 
 from magpy.stream import *
+from magpy.config import get_config
 
 #global variables
 MISSING_DATA = 99999

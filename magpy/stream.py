@@ -17,7 +17,6 @@ import os
 import sys
 import tempfile
 
-from magpy.config import get_config
 
 # ----------------------------------------------------------------------------
 # Part 1: Import routines for packages
@@ -29,14 +28,13 @@ nasacdfdir = "c:\CDF Distribution\cdf33_1-dist\lib"
 
 # Logging
 # ---------
-# Select the directory defined by the config file
-data = get_config()
-if not 'logLocation' in data:
-    path_to_log = tempfile.gettempdir()
-elif not os.path.exists(data['logLocation']):
-    path_to_log = tempfile.gettempdir()
+# Select the user's home directory (platform independent) or environment path
+if "MAGPY_LOG_PATH" in os.environ:
+    path_to_log = os.environ["MAGPY_LOG_PATH"]
+    if not os.path.exists(path_to_log):
+        os.makedirs(path_to_log)
 else:
-    path_to_log = data['logLocation']
+    path_to_log = tempfile.gettempdir()
 
 def setup_logger(name, warninglevel=logging.WARNING, logfilepath=path_to_log,
                  logformat='%(asctime)s %(levelname)s - %(name)-6s - %(message)s'):

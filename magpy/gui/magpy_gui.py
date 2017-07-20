@@ -1656,7 +1656,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
                 #self.ActivateControls(self.plotstream)
                 self.OnInitialPlot(self.plotstream)
         else:
-                    dlg = wx.MessageDialog(self, "Could identfy appropriate files in directory!\n"
+                    dlg = wx.MessageDialog(self, "Could not identfy appropriate files in directory!\n"
                         "please check and/or try OpenFile\n",
                         "OpenDirectory", wx.OK|wx.ICON_INFORMATION)
                     dlg.ShowModal()
@@ -1666,38 +1666,50 @@ Suite 330, Boston, MA  02111-1307  USA"""
     def OnOpenFile(self, event):
         #self.dirname = ''
         stream = DataStream()
+        success = False
         stream.header = {}
         filelist = []
         dlg = wx.FileDialog(self, "Choose a file", self.dirname, "", "*.*", wx.MULTIPLE)
         if dlg.ShowModal() == wx.ID_OK:
             self.changeStatusbar("Loading data ...")
             pathlist = dlg.GetPaths()
-            for path in pathlist:
-                elem = os.path.split(path)
-                self.dirname = elem[0]
-                filelist.append(elem[1])
-                self.changeStatusbar(path)
-                tmp = read(path)
-                self.changeStatusbar("... found {} rows".format(tmp.length()[0]))
-                stream.extend(tmp.container,tmp.header,tmp.ndarray)
-            #stream = read(path_or_url=os.path.join(self.dirname, self.filename),tenHz=True,gpstime=True)
-            #self.menu_p.str_page.lengthStreamTextCtrl.SetValue(str(len(stream)))
-            self.filename = ' ,'.join(filelist)
-            self.menu_p.str_page.fileTextCtrl.SetValue(self.filename)
-            self.menu_p.str_page.pathTextCtrl.SetValue(self.dirname)
-            self.menu_p.rep_page.logMsg('{}: found {} data points'.format(self.filename,len(stream.ndarray[0])))
-
+            try:
+                for path in pathlist:
+                    elem = os.path.split(path)
+                    self.dirname = elem[0]
+                    filelist.append(elem[1])
+                    self.changeStatusbar(path)
+                    tmp = read(path)
+                    self.changeStatusbar("... found {} rows".format(tmp.length()[0]))
+                    stream.extend(tmp.container,tmp.header,tmp.ndarray)
+                #stream = read(path_or_url=os.path.join(self.dirname, self.filename),tenHz=True,gpstime=True)
+                #self.menu_p.str_page.lengthStreamTextCtrl.SetValue(str(len(stream)))
+                self.filename = ' ,'.join(filelist)
+                self.menu_p.str_page.fileTextCtrl.SetValue(self.filename)
+                self.menu_p.str_page.pathTextCtrl.SetValue(self.dirname)
+                self.menu_p.rep_page.logMsg('{}: found {} data points'.format(self.filename,len(stream.ndarray[0])))
+                success = True
+            except:
+                sucess = False
         dlg.Destroy()
 
         # plot data
-        if self.InitialRead(stream):
-            #self.ActivateControls(self.plotstream)
-            self.OnInitialPlot(self.plotstream)
+        if success:
+            if self.InitialRead(stream):
+                #self.ActivateControls(self.plotstream)
+                self.OnInitialPlot(self.plotstream)
+        else:
+            dlg = wx.MessageDialog(self, "Could not identfy file!\n"
+                "please check and/or try OpenDirectory\n",
+                "OpenFile", wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            self.changeStatusbar("Loading file failed ... Ready")
+            dlg.Destroy()
 
 
     def OnOpenURL(self, event):
         stream = DataStream()
-
+        success = False
         bookmarks = self.options.get('bookmarks',[])
         if bookmarks == []:
             bookmarks = ['http://www.intermagnet.org/test/ws/?id=BOU','ftp://ftp.nmh.ac.uk/wdc/obsdata/hourval/single_year/2011/fur2011.wdc','ftp://user:passwd@www.zamg.ac.at/data/magnetism/wic/variation/WIC20160627pmin.min','http://www.conrad-observatory.at/zamg/index.php/downloads-en/category/13-definite2015?download=66:wic-2015-0000-pt1m-4','http://www-app3.gfz-potsdam.de/kp_index/qlyymm.tab']
@@ -1706,46 +1718,55 @@ Suite 330, Boston, MA  02111-1307  USA"""
         if dlg.ShowModal() == wx.ID_OK:
             url = dlg.urlTextCtrl.GetValue()
             self.changeStatusbar("Loading data ... be patient")
-            if not url.endswith('/'):
-                self.menu_p.str_page.pathTextCtrl.SetValue(url)
-                self.menu_p.str_page.fileTextCtrl.SetValue(url.split('/')[-1])
-                try:
-                    stream = read(path_or_url=url)
-                except:
-                    dlg = wx.MessageDialog(self, "Could not access URL!\n"
-                        "please check address or your internet connection\n",
-                        "OpenWebAddress", wx.OK|wx.ICON_INFORMATION)
-                    dlg.ShowModal()
-                    self.changeStatusbar("Loading url failed ... Ready")
-                    dlg.Destroy()
-            else:
-                self.menu_p.str_page.pathTextCtrl.SetValue(url)
-                mintime = pydate2wxdate(datetime(1777,4,30))  # Gauss
-                maxtime = pydate2wxdate(datetime(2233,3,22))  # Kirk
-                try:
-                    stream = self.openStream(path=url, mintime=mintime, maxtime=maxtime, extension='*')
-                except:
-                    dlg = wx.MessageDialog(self, "Could not access URL!\n"
-                        "please check address or your internet connection\n",
-                        "OpenWebAddress", wx.OK|wx.ICON_INFORMATION)
-                    dlg.ShowModal()
-                    self.changeStatusbar("Loading url failed ... Ready")
-                    dlg.Destroy()
+            try:
+                if not url.endswith('/'):
+                    self.menu_p.str_page.pathTextCtrl.SetValue(url)
+                    self.menu_p.str_page.fileTextCtrl.SetValue(url.split('/')[-1])
+                    try:
+                        stream = read(path_or_url=url)
+                        success = True
+                    except:
+                        success = False
+                else:
+                    self.menu_p.str_page.pathTextCtrl.SetValue(url)
+                    mintime = pydate2wxdate(datetime(1777,4,30))  # Gauss
+                    maxtime = pydate2wxdate(datetime(2233,3,22))  # Kirk
+                    try:
+                        stream = self.openStream(path=url, mintime=mintime, maxtime=maxtime, extension='*')
+                        success = True
+                    except:
+                        success = False
+            except:
+                pass
+        dlg.Destroy()
 
+        if success:
             self.menu_p.rep_page.logMsg('{}: found {} data points'.format(url,len(stream.ndarray[0])))
-
+            if self.InitialRead(stream):
+                #self.ActivateControls(self.plotstream)
+                self.OnInitialPlot(self.plotstream)
             self.options['bookmarks'] = dlg.favorites
             #print ("Here", dlg.favorites)
             #if not bookmarks == dlg.favorites:
             #print ("Favorites have changed ...  can be saved in init")
-
-
-        if self.InitialRead(stream):
-            #self.ActivateControls(self.plotstream)
-            self.OnInitialPlot(self.plotstream)
-
-        self.changeStatusbar("Ready")
-        dlg.Destroy()
+            saveini(self.options)
+            inipara, check = loadini()
+            self.initParameter(inipara)
+            self.changeStatusbar("Ready")
+        else:
+            self.options['bookmarks'] = dlg.favorites
+            #print ("Here", dlg.favorites)
+            #if not bookmarks == dlg.favorites:
+            #print ("Favorites have changed ...  can be saved in init")
+            saveini(self.options)
+            inipara, check = loadini()
+            self.initParameter(inipara)
+            dlg = wx.MessageDialog(self, "Could not access URL!\n"
+                "please check address or your internet connection\n",
+                "OpenWebAddress", wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            self.changeStatusbar("Loading url failed ... Ready")
+            dlg.Destroy()
 
 
     def OnOpenDB(self, event):
@@ -2596,20 +2617,28 @@ Suite 330, Boston, MA  02111-1307  USA"""
         end= datetime.strptime(ed+'_'+entime, "%Y-%m-%d_%H:%M:%S")
         print ("Range", start, end)
 
-        try:
-            self.changeStatusbar("Trimming stream ...")
-            newarray = self.plotstream._select_timerange(starttime=start, endtime=end)
-            self.plotstream=DataStream([LineStruct()],self.plotstream.header,newarray)
-            self.menu_p.rep_page.logMsg('- Stream trimmed: {} to {}'.format(start,end))
-        except:
-            self.menu_p.rep_page.logMsg('- Trimming failed')
+        if end > start:
+            try:
+                self.changeStatusbar("Trimming stream ...")
+                newarray = self.plotstream._select_timerange(starttime=start, endtime=end)
+                self.plotstream=DataStream([LineStruct()],self.plotstream.header,newarray)
+                self.menu_p.rep_page.logMsg('- Stream trimmed: {} to {}'.format(start,end))
+            except:
+                self.menu_p.rep_page.logMsg('- Trimming failed')
 
-        self.ActivateControls(self.plotstream)
-        if self.plotstream.length()[0] > 0:
-            self.OnPlot(self.plotstream,self.shownkeylist)
-            self.changeStatusbar("Ready")
+            self.ActivateControls(self.plotstream)
+            if self.plotstream.length()[0] > 0:
+                self.OnPlot(self.plotstream,self.shownkeylist)
+                self.changeStatusbar("Ready")
+            else:
+                self.changeStatusbar("Failure")
         else:
-            self.changeStatusbar("Failure")
+            dlg = wx.MessageDialog(self, "Could not trim timerange!\n"
+                        "Entered dates are out of order.\n",
+                        "TrimTimerange", wx.OK|wx.ICON_INFORMATION)
+            dlg.ShowModal()
+            self.changeStatusbar("Trimming timerange failed ... Ready")
+            dlg.Destroy()
 
 
     def openStream(self,path='',mintime=None,maxtime=None,extension=None):
@@ -3591,8 +3620,13 @@ Suite 330, Boston, MA  02111-1307  USA"""
                                        "Log files (*.log)|*.log",
                                        wx.FD_SAVE | wx.FD_OVERWRITE_PROMPT)
         saveFileDialog.ShowModal()
-        saveFileDialog.GetPath()
+        savepath = saveFileDialog.GetPath()
+        text = self.menu_p.rep_page.logger.GetValue()
         saveFileDialog.Destroy()
+
+        logfile = open(savepath, "w")
+        logfile.write(text)
+        logfile.close()
 
 
     # ------------------------------------------------------------------------------------------

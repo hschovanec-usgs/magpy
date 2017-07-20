@@ -1854,18 +1854,31 @@ Suite 330, Boston, MA  02111-1307  USA"""
             #print "Stream: ", len(self.stream), len(self.plotstream)
             #print "Data: ", self.stream[0].time, self.stream[-1].time, self.plotstream[0].time, self.plotstream[-1].time
             #print ("Main : ", filenamebegins, filenameends, dateformat, fileformat, coverage, mode)
-            try:
-                self.plotstream.write(path,
-                                filenamebegins=filenamebegins,
-                                filenameends=filenameends,
-                                dateformat=dateformat,
-                                mode=mode,
-                                coverage=coverage,
-                                format_type=fileformat)
-                self.menu_p.rep_page.logMsg("Data written to path: {}".format(path))
-                self.changeStatusbar("Data written ... Ready")
-            except:
-                self.menu_p.rep_page.logMsg("Writing failed - Permission?")
+            checkPath = os.path.join(path, dlg.filenameTextCtrl.GetValue())
+            export = False
+            if os.path.exists(checkPath):
+                msg = wx.MessageDialog(self, "The current export file will overwrite an existing file!\n"
+                    "Choose 'Ok' to apply the overwrite or 'Cancel' to stop exporting.\n",
+                    "VerifyOverwrite", wx.OK|wx.CANCEL|wx.ICON_QUESTION)
+                if msg.ShowModal() == wx.ID_OK:
+                    export = True
+                msg.Destroy()
+            else:
+                export = True
+
+            if export == True:
+                try:
+                    self.plotstream.write(path,
+                                    filenamebegins=filenamebegins,
+                                    filenameends=filenameends,
+                                    dateformat=dateformat,
+                                    mode=mode,
+                                    coverage=coverage,
+                                    format_type=fileformat)
+                    self.menu_p.rep_page.logMsg("Data written to path: {}".format(path))
+                    self.changeStatusbar("Data written ... Ready")
+                except:
+                    self.menu_p.rep_page.logMsg("Writing failed - Permission?")
         else:
             self.changeStatusbar("Ready")
         dlg.Destroy()

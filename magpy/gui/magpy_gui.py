@@ -3330,6 +3330,10 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.changeStatusbar("Ready")
 
     def onFlagMinButton(self,event):
+        """
+        DESCRIPTION
+            Flags minimum value in zoomed region
+        """
         keys = self.shownkeylist
         teststream = self.plotstream.copy()
         # limits
@@ -3361,6 +3365,10 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.OnPlot(self.plotstream,self.shownkeylist)
 
     def onFlagMaxButton(self,event):
+        """
+        DESCRIPTION
+            Flags maximum value in zoomed region
+        """
         keys = self.shownkeylist
         teststream = self.plotstream.copy()
         # limits

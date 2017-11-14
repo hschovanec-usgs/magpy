@@ -17,6 +17,10 @@ from magpy.config import get_config
 MISSING_DATA = 99999
 NOT_REPORTED = 88888
 
+#global variables
+MISSING_DATA = 99999
+NOT_REPORTED = 88888
+
 def isIAGA(filename):
     """
     Checks whether a file is ASCII IAGA 2002 format.

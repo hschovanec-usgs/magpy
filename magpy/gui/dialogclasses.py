@@ -1911,6 +1911,7 @@ class AnalysisFilterDialog(wx.Dialog):
 
         self.SetSizerAndFit(boxSizer)
 
+
 class AnalysisOffsetDialog(wx.Dialog):
     """
     Dialog for Stream panel
@@ -4044,7 +4045,6 @@ class CheckDefinitiveDataDialog(wx.Dialog):
         self.checkparameter = {'step2':True, 'step3':True, 'step4':True, 'step5':True, 'step6':True, 'step7':True }  # modified by checkOptions
         self.createControls()
         self.doLayout()
-        self.bindControls()
 
     # Widgets
     def createControls(self):
@@ -4113,6 +4113,7 @@ class CheckDefinitiveDataDialog(wx.Dialog):
 
         self.SetSizerAndFit(boxSizer)
 
+<<<<<<< HEAD
     def bindControls(self):
         #self.closeButton.Bind(wx.EVT_BUTTON, self.OnClose)
         self.minuteButton.Bind(wx.EVT_BUTTON, self.OnMinute)
@@ -4631,7 +4632,6 @@ class AGetMARCOSDialog(wx.Dialog):
 
         self.SetSizerAndFit(boxSizer)
 
-class BGetMARCOSDialog(wx.Dialog):
     """
     DESCRIPTION
         Dialog to select table parameters for MARCOS monitoring

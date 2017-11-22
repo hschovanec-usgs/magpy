@@ -321,7 +321,7 @@ class PlotPanel(scrolled.ScrolledPanel):
         PARAMETERS:
             kwargs:  - all plot args
         """
-        # moved to MARTAS 
+        # moved to MARTAS
         pass
 
 
@@ -857,7 +857,7 @@ class MainFrame(wx.Frame):
         self.MainMenu.Append(self.DatabaseMenu, "Data&base")
         # ## DI Menu
         self.DIMenu = wx.Menu()
-        self.DIPath2DI = wx.MenuItem(self.DIMenu, 501, "&Load DI data...\tCtrl+L", "Load DI data...", wx.ITEM_NORMAL)
+        self.DIPath2DI = wx.MenuItem(self.DIMenu, 501, "&Load DI data...\tShift+L", "Load DI data...", wx.ITEM_NORMAL)
         self.DIMenu.AppendItem(self.DIPath2DI)
         self.DIPath2Vario = wx.MenuItem(self.DIMenu, 502, "Path to &variometer data...\tCtrl+A", "Variometer data...", wx.ITEM_NORMAL)
         self.DIMenu.AppendItem(self.DIPath2Vario)
@@ -888,7 +888,7 @@ class MainFrame(wx.Frame):
         self.OptionsInitItem = wx.MenuItem(self.OptionsMenu, 401, "&Basic initialisation parameter\tCtrl+B", "Modify general defaults (e.g. DB, paths)", wx.ITEM_NORMAL)
         self.OptionsMenu.AppendItem(self.OptionsInitItem)
         self.OptionsMenu.AppendSeparator()
-        self.OptionsDIItem = wx.MenuItem(self.OptionsMenu, 402, "DI &initialisation parameter\tCtrl+I", "Modify DI related parameters (e.g. thresholds, paths, input sheet layout)", wx.ITEM_NORMAL)
+        self.OptionsDIItem = wx.MenuItem(self.OptionsMenu, 402, "DI &initialisation parameter\tShift+I", "Modify DI related parameters (e.g. thresholds, paths, input sheet layout)", wx.ITEM_NORMAL)
         self.OptionsMenu.AppendItem(self.OptionsDIItem)
         #self.OptionsMenu.AppendSeparator()
         #self.OptionsObsItem = wx.MenuItem(self.OptionsMenu, 403, "Observator&y specifications\tCtrl+Y", "Modify observatory specific meta data (e.g. pears, offsets)", wx.ITEM_NORMAL)
@@ -4051,7 +4051,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
                         "Adopted baseline", wx.OK|wx.ICON_INFORMATION)
             dlg.ShowModal()
             dlg.Destroy()
-            
+
             self.ActivateControls(self.plotstream)
             self.OnPlot(self.plotstream,self.shownkeylist)
             self.changeStatusbar("BC function available - Ready")
@@ -5342,7 +5342,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
     # ################
     # ------------------------------------------------------------------------------------------
 
-    """     
+    """
     def onConnectMQTTButton(self, event):
         # start a subscribe to client call
         success = True
@@ -5443,7 +5443,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.menu_p.com_page.logMsg(' - IP: {}'.format(martasaddress))
             self.menu_p.com_page.coverageTextCtrl.Enable()    # always
             self.menu_p.com_page.frequSlider.Enable()         # always
-    """     
+    """
 
     def onConnectMARCOSButton(self, event):
         # active if database is connected
@@ -5554,7 +5554,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
 
             self.changeStatusbar("Scanning for MQTT broadcasts ... approx 20 sec")
 
-            
+
 
             loopcnt = 0
             success = True

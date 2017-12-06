@@ -234,51 +234,84 @@ class ConnectWebServiceDialog(wx.Dialog):
         self.elementsTextCtrl.Bind(wx.EVT_TEXT, self.onChange)
         self.generatedTextCtrl.Bind(wx.EVT_TEXT, self.onOverride)
 
+
+    def createUrl(self):
+        base = self.getBaseUrl()
+        datatype = self.getDataType()
+        elements = self.getElements()
+        endtime = self.getEndTime()
+        fileformat = self.getFormat()
+        observatory = self.getObservatory()
+        period = self.getPeriod()
+        starttime = self.getStartTime()
+        url = (base + observatory + starttime + endtime + fileformat +
+              elements + datatype + period)
+        self.url = url
+        self.generatedTextCtrl.SetValue(self.url)
+
+    def getBaseUrl(self):
+        baseurl = self.baseTextCtrl.GetValue()
+        return baseurl
+
+    def getDataType(self):
+        datatype = '&type=' + self.typeComboBox.GetString(
+                self.typeComboBox.GetSelection())
+        return datatype
+
+    def getElements(self):
+        self.elements = self.elementsTextCtrl.GetValue()
+        elements = '&elements=' + self.elementsTextCtrl.GetValue()
+        return elements
+
+    def getEndTime(self):
+        enday = self.endDatePicker.GetValue()
+        entime = str(self.endTimePicker.GetValue())
+        endtime = self.parsePickerTime(enday, entime)
+        self.endtime = endtime
+        endtime = '&endtime=' + endtime
+        return endtime
+
+    def getFormat(self):
+        fileformat = '&format=' + self.formatComboBox.GetString(
+                self.formatComboBox.GetSelection())
+        return fileformat
+
+    def getObservatory(self):
+        observatory = 'id=' + self.idComboBox.GetString(
+                self.idComboBox.GetSelection())
+        return observatory
+
+    def getPeriod(self):
+        self.samplingperiod = self.sampleTextCtrl.GetValue()
+        period = '&sampling_period=' + self.sampleTextCtrl.GetValue()
+        return period
+
+    def getStartTime(self):
+        stday = self.startDatePicker.GetValue()
+        sttime = str(self.startTimePicker.GetValue())
+        starttime = self.parsePickerTime(stday, sttime)
+        self.starttime = starttime
+        starttime = '&starttime=' + starttime
+        return starttime
+
+    def parsePickerTime(self, date, time):
+        if time.endswith('AM') or time.endswith('am'):
+            time = datetime.strftime(datetime.strptime(
+                    time,"%I:%M:%S %p"),"%H:%M:%S")
+        if time.endswith('pm') or time.endswith('PM'):
+            time = datetime.strftime(datetime.strptime(
+                    time,"%I:%M:%S %p"),"%H:%M:%S")
+        date = datetime.strftime(datetime.fromtimestamp(
+                date.GetTicks()), "%Y-%m-%d")
+        date = datetime.strptime(date+'_'+time, "%Y-%m-%d_%H:%M:%S")
+        datestr = datetime.strftime(date, "%Y-%m-%dT%H:%M:%SZ")
+        return datestr
+
     def onChange(self, e):
         self.createUrl()
 
     def onOverride(self, e):
         self.url = self.generatedTextCtrl.GetValue()
-
-    def createUrl(self):
-        stday = self.startDatePicker.GetValue()
-        sttime = str(self.startTimePicker.GetValue())
-        if sttime.endswith('AM') or sttime.endswith('am'):
-            sttime = datetime.strftime(datetime.strptime(sttime,"%I:%M:%S %p"),"%H:%M:%S")
-        if sttime.endswith('pm') or sttime.endswith('PM'):
-            sttime = datetime.strftime(datetime.strptime(sttime,"%I:%M:%S %p"),"%H:%M:%S")
-        sd = datetime.strftime(datetime.fromtimestamp(stday.GetTicks()), "%Y-%m-%d")
-        start = datetime.strptime(str(sd)+'_'+sttime, "%Y-%m-%d_%H:%M:%S")
-        startstr = datetime.strftime(start, "%Y-%m-%dT%H:%M:%SZ")
-        enday = self.endDatePicker.GetValue()
-        entime = str(self.endTimePicker.GetValue())
-        if entime.endswith('AM') or entime.endswith('am'):
-            entime = datetime.strftime(datetime.strptime(entime,"%I:%M:%S %p"),"%H:%M:%S")
-        if entime.endswith('pm') or entime.endswith('PM'):
-            print ("ENDTime", entime, datetime.strptime(entime,"%I:%M:%S %p"))
-            entime = datetime.strftime(datetime.strptime(entime,"%I:%M:%S %p"),"%H:%M:%S")
-        ed = datetime.strftime(datetime.fromtimestamp(enday.GetTicks()), "%Y-%m-%d")
-        end = datetime.strptime(ed+'_'+entime, "%Y-%m-%d_%H:%M:%S")
-        endstr = datetime.strftime(end, "%Y-%m-%dT%H:%M:%SZ")
-        obs_id = 'id=' + self.idComboBox.GetString(
-                self.idComboBox.GetSelection())
-        start_time = '&starttime=' + startstr
-        end_time = '&endtime=' + endstr
-        file_format = '&format=' + self.formatComboBox.GetString(
-                self.formatComboBox.GetSelection())
-        elements = '&elements=' + self.elementsTextCtrl.GetValue()
-        data_type = '&type=' + self.typeComboBox.GetString(
-                self.typeComboBox.GetSelection())
-        period = '&sampling_period=' + self.sampleTextCtrl.GetValue()
-        base = self.baseTextCtrl.GetValue()
-        url = (base + obs_id + start_time + end_time + file_format +
-              elements + data_type + period)
-        self.url = url
-        self.starttime = startstr
-        self.endtime = endstr
-        self.sampling_period = self.sampleTextCtrl.GetValue()
-        self.elements = self.elementsTextCtrl.GetValue()
-        self.generatedTextCtrl.SetValue(self.url)
 
 
 class LoadDataDialog(wx.Dialog):

@@ -2179,7 +2179,7 @@ class AnalysisBaselineDialog(wx.Dialog):
         # Add the controls to the sizers:
         contlst=[(self.absstreamLabel, noOptions)]
         contlst.append((self.absstreamComboBox, expandOption))
-        contlst.append((self.fitlistRadioBox, noOptions))
+        #contlst.append((self.fitlistRadioBox, noOptions))
         contlst.append((self.parameterLabel, noOptions))
         contlst.append((self.parameterTextCtrl, expandOption))
         contlst.append((self.parameterButton, dict(flag=wx.ALIGN_CENTER)))

@@ -53,7 +53,7 @@ class OpenWebAddressDialog(wx.Dialog):
         # and the logger text control (on the right):
         boxSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
         # A GridSizer will contain the other controls:
-        gridSizer = wx.FlexGridSizer(rows=5, cols=3, vgap=10, hgap=10)
+        gridSizer = wx.FlexGridSizer(rows=6, cols=3, vgap=10, hgap=10)
 
         # Prepare some reusable arguments for calling sizer.Add():
         expandOption = dict(flag=wx.EXPAND)
@@ -74,6 +74,9 @@ class OpenWebAddressDialog(wx.Dialog):
                   emptySpace,
                   emptySpace,
                  (self.dropFavsButton, dict(flag=wx.ALIGN_CENTER)),
+                 emptySpace,
+                 emptySpace,
+                 emptySpace,
                  (self.okButton, dict(flag=wx.ALIGN_CENTER)),
                   emptySpace,
                  (self.closeButton, dict(flag=wx.ALIGN_CENTER))]:
@@ -110,6 +113,205 @@ class OpenWebAddressDialog(wx.Dialog):
         self.getFavsComboBox.Clear()
         for elem in self.favorites:
             self.getFavsComboBox.Append(elem)
+
+
+class ConnectWebServiceDialog(wx.Dialog):
+    """
+    Helper method to generate urls and connect to a WebService
+    Select shown keys
+    """
+    def __init__(self, parent, title, ids, types, formats):
+        super(ConnectWebServiceDialog, self).__init__(parent=parent,
+            title=title, size=(400, 600))
+        self.ids = ids
+        self.types = types
+        self.formats = formats
+        self.createControls()
+        self.doLayout()
+        self.bindControls()
+        self.createUrl()
+
+    def createControls(self):
+        example = "Example: https://geomag.usgs.gov/ws/edge/?id=BOU&starttime=" \
+                "2016-04-22H00:00:00Z&endtime=2016-04-30H23:59:00Z&sampling_period=60" \
+                "&type=variation&format=iaga2002"
+        base = 'https://geomag.usgs.gov/ws/edge/?'
+        #self.exampleText = wx.StaticText(self, label=example,size=(500,60))
+        self.baseLabel = wx.StaticText(self, label='Base URL:',size=(500,20))
+        self.baseTextCtrl = wx.TextCtrl(self, value=base,size=(400,25))
+        self.obsIDLabel = wx.StaticText(self, label="Observatory ID:",size=(400,20))
+        self.idComboBox = wx.Choice(self, choices=self.ids,
+            style=wx.CB_READONLY,size=(400,25))
+        self.formatLabel = wx.StaticText(self, label="Format: ",size=(400,20))
+        self.formatComboBox = wx.Choice(self, choices=self.formats,
+            style=wx.CB_READONLY,size=(400,25))
+        self.typeLabel = wx.StaticText(self, label="Type: ",size=(400,20))
+        self.typeComboBox = wx.Choice(self, choices=self.types,
+            style=wx.CB_READONLY, size=(400,25))
+        self.sampleLabel = wx.StaticText(self, label="Sampling Period (1, 6, or 3600)",size=(400,20))
+        self.sampleTextCtrl = wx.TextCtrl(self, value='60',size=(400,25))
+        self.startTimeLabel = wx.StaticText(self, label="Start Time: ",size=(400,20))
+        self.startDatePicker = wx.DatePickerCtrl(self, dt=wx.DateTime().Today(), size=(160,25))
+        self.startTimePicker = wx.TextCtrl(self, value='00:00:00',size=(160,25))
+        self.endTimeLabel = wx.StaticText(self, label="End Time: ",size=(400,20))
+        self.endDatePicker = wx.DatePickerCtrl(self, dt=wx.DateTime().Today(), size=(160,25))
+        self.endTimePicker = wx.TextCtrl(self, value='23:59:00',size=(160,25))
+        self.elementsLabel = wx.StaticText(self, label="Comma separated list of requested elements: ",size=(400,20))
+        self.elementsTextCtrl = wx.TextCtrl(self, value='X,Y,Z,F',size=(400,25))
+        self.generatedLabel = wx.StaticText(self, label="Generated URL:",size=(400,20))
+        self.generatedTextCtrl = wx.TextCtrl(self, value='',size=(400,25))
+        self.okButton = wx.Button(self, wx.ID_OK, label='OK',size=(400,25))
+        self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel',size=(400,25))
+
+    def doLayout(self):
+        # A horizontal BoxSizer will contain the GridSizer (on the left)
+        # and the logger text control (on the right):
+        boxSizer = wx.BoxSizer(orient=wx.HORIZONTAL)
+
+        # Prepare some reusable arguments for calling sizer.Add():
+        expandOption = dict(flag=wx.EXPAND)
+        noOptions = dict()
+        emptySpace = ((0, 0), noOptions)
+
+        elemlist = [(self.baseLabel, noOptions),
+                emptySpace,
+                (self.baseTextCtrl, expandOption),
+                (self.obsIDLabel, noOptions),
+                (self.idComboBox, expandOption),
+                emptySpace,
+                (self.formatLabel, noOptions),
+                (self.formatComboBox, expandOption),
+                emptySpace,
+                (self.typeLabel, noOptions),
+                (self.typeComboBox, expandOption),
+                emptySpace,
+                (self.sampleLabel, noOptions),
+                (self.sampleTextCtrl, expandOption),
+                emptySpace,
+                (self.startTimeLabel, noOptions),
+                (self.startDatePicker, expandOption),
+                (self.startTimePicker, expandOption),
+                emptySpace,
+                (self.endTimeLabel, noOptions),
+                (self.endDatePicker, expandOption),
+                (self.endTimePicker, expandOption),
+                emptySpace,
+                (self.elementsLabel, noOptions),
+                (self.elementsTextCtrl, expandOption),
+                emptySpace,
+                (self.generatedLabel, noOptions),
+                (self.generatedTextCtrl, expandOption),
+                (self.okButton, dict(flag=wx.ALIGN_CENTER)),
+                (self.closeButton, dict(flag=wx.ALIGN_CENTER))]
+
+        # A GridSizer will contain the other controls:
+        cols = 1
+        rows = int(np.ceil(len(elemlist)/float(cols)))
+        gridSizer = wx.FlexGridSizer(rows=rows, cols=cols, vgap=5, hgap=10)
+
+        # Add the controls to the sizers:
+        for control, options in elemlist:
+            gridSizer.Add(control, **options)
+
+        for control, options in \
+                [(gridSizer, dict(border=5, flag=wx.ALL))]:
+            boxSizer.Add(control, **options)
+
+        self.SetSizerAndFit(boxSizer)
+
+    def bindControls(self):
+        self.baseTextCtrl.Bind(wx.EVT_TEXT, self.onChange)
+        self.startTimePicker.Bind(wx.EVT_TEXT, self.onChange)
+        self.endTimePicker.Bind(wx.EVT_TEXT, self.onChange)
+        self.idComboBox.Bind(wx.EVT_CHOICE, self.onChange)
+        self.formatComboBox.Bind(wx.EVT_CHOICE, self.onChange)
+        self.typeComboBox.Bind(wx.EVT_CHOICE, self.onChange)
+        self.sampleTextCtrl.Bind(wx.EVT_TEXT, self.onChange)
+        self.startDatePicker.Bind(wx.EVT_DATE_CHANGED, self.onChange)
+        self.startTimePicker.Bind(wx.EVT_TEXT, self.onChange)
+        self.endDatePicker.Bind(wx.EVT_DATE_CHANGED, self.onChange)
+        self.endTimePicker.Bind(wx.EVT_TEXT, self.onChange)
+        self.elementsTextCtrl.Bind(wx.EVT_TEXT, self.onChange)
+        self.generatedTextCtrl.Bind(wx.EVT_TEXT, self.onOverride)
+
+
+    def createUrl(self):
+        base = self.getBaseUrl()
+        datatype = self.getDataType()
+        elements = self.getElements()
+        endtime = self.getEndTime()
+        fileformat = self.getFormat()
+        observatory = self.getObservatory()
+        period = self.getPeriod()
+        starttime = self.getStartTime()
+        url = (base + observatory + starttime + endtime + fileformat +
+              elements + datatype + period)
+        self.url = url
+        self.generatedTextCtrl.SetValue(self.url)
+
+    def getBaseUrl(self):
+        baseurl = self.baseTextCtrl.GetValue()
+        return baseurl
+
+    def getDataType(self):
+        datatype = '&type=' + self.typeComboBox.GetString(
+                self.typeComboBox.GetSelection())
+        return datatype
+
+    def getElements(self):
+        self.elements = self.elementsTextCtrl.GetValue()
+        elements = '&elements=' + self.elementsTextCtrl.GetValue()
+        return elements
+
+    def getEndTime(self):
+        enday = self.endDatePicker.GetValue()
+        entime = str(self.endTimePicker.GetValue())
+        endtime = self.parsePickerTime(enday, entime)
+        self.endtime = endtime
+        endtime = '&endtime=' + endtime
+        return endtime
+
+    def getFormat(self):
+        fileformat = '&format=' + self.formatComboBox.GetString(
+                self.formatComboBox.GetSelection())
+        return fileformat
+
+    def getObservatory(self):
+        observatory = 'id=' + self.idComboBox.GetString(
+                self.idComboBox.GetSelection())
+        return observatory
+
+    def getPeriod(self):
+        self.samplingperiod = self.sampleTextCtrl.GetValue()
+        period = '&sampling_period=' + self.sampleTextCtrl.GetValue()
+        return period
+
+    def getStartTime(self):
+        stday = self.startDatePicker.GetValue()
+        sttime = str(self.startTimePicker.GetValue())
+        starttime = self.parsePickerTime(stday, sttime)
+        self.starttime = starttime
+        starttime = '&starttime=' + starttime
+        return starttime
+
+    def parsePickerTime(self, date, time):
+        if time.endswith('AM') or time.endswith('am'):
+            time = datetime.strftime(datetime.strptime(
+                    time,"%I:%M:%S %p"),"%H:%M:%S")
+        if time.endswith('pm') or time.endswith('PM'):
+            time = datetime.strftime(datetime.strptime(
+                    time,"%I:%M:%S %p"),"%H:%M:%S")
+        date = datetime.strftime(datetime.fromtimestamp(
+                date.GetTicks()), "%Y-%m-%d")
+        date = datetime.strptime(date+'_'+time, "%Y-%m-%d_%H:%M:%S")
+        datestr = datetime.strftime(date, "%Y-%m-%dT%H:%M:%SZ")
+        return datestr
+
+    def onChange(self, e):
+        self.createUrl()
+
+    def onOverride(self, e):
+        self.url = self.generatedTextCtrl.GetValue()
 
 
 class LoadDataDialog(wx.Dialog):

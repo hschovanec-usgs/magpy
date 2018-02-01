@@ -1497,6 +1497,7 @@ def absoluteAnalysis(absdata, variodata, scalardata, **kwargs):
         - expT:         (float) expected value threshold - default 1 deg
         - movetoarchive:(string) define a local directory to store archived data (only works when reading files)
         - datastream:   ((DataStream object) provides vario and scalar data as an alternative to reading files
+        - jsonformat: (bool) if true data is in JSONABS format
     RETURNS:
         --
     EXAMPLE:
@@ -1550,6 +1551,7 @@ def absoluteAnalysis(absdata, variodata, scalardata, **kwargs):
     meantime = kwargs.get('meantime')
     movetoarchive = kwargs.get('movetoarchive')
     datastream = kwargs.get('datastream')
+    jsonformat = kwargs.get('jsonformat')
 
     if not outputformat:
         outputformat='idf'
@@ -1624,7 +1626,7 @@ def absoluteAnalysis(absdata, variodata, scalardata, **kwargs):
             #filelist.append(absdata)
             if "://" in absdata:
                 print("Found URL code - requires name of data set with date")
-                if "observation.json" in absdata:
+                if jsonformat == True:
                     dataformat = 'JSONABS'
                 filelist.append(absdata)
                 movetoarchive = False # XXX No archiving function supported so far - will be done as soon as writing to files is available
@@ -1646,7 +1648,7 @@ def absoluteAnalysis(absdata, variodata, scalardata, **kwargs):
                 listlen = len(absdata)
                 for elem in absdata:
                     if "://" in elem:
-                        if "observation.json" in elem:
+                        if jsonformat == True:
                             dataformat = 'JSONABS'
                         print("Found URL code - requires name of data set with date")
                         filelist.append(elem)
@@ -1711,7 +1713,7 @@ def absoluteAnalysis(absdata, variodata, scalardata, **kwargs):
                 tempstream = read(url)
                 datastream = joinStreams(tempstream,datastream)
             except:
-                print('Unable to load USGS scalar and vario data from: ' + url)
+                print('Unable to load scalar and vario data from: ' + url)
         if endtime > streamend and endtime-streamend > timedelta(seconds=deltat):
             parsed = url.split('&')
             parsed = [el for el in parsed if not "starttime=" in el and not "endtime=" in el]
@@ -1722,7 +1724,7 @@ def absoluteAnalysis(absdata, variodata, scalardata, **kwargs):
                 tempstream = read(url)
                 datastream = joinStreams(datastream,tempstream)
             except:
-                print('Unable to load USGS scalar and vario data from: ' + url)
+                print('Unable to load scalar and vario data from: ' + url)
         streamstart=datastream.ndarray[KEYLIST.index('time')][0]
         streamend=datastream.ndarray[KEYLIST.index('time')][-1]
         streamstart = num2date(streamstart).replace(tzinfo=None)

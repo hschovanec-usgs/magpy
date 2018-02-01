@@ -90,6 +90,10 @@ def saveini(optionsdict): #dbname=None, user=None, passwd=None, host=None, dirna
         optionsdict['host'] = 'localhost'
     if optionsdict.get('dirname','') == '':
         optionsdict['dirname'] = normalpath
+    if optionsdict.get('intermagnetbase','') == '':
+        optionsdict['intermagnetbase'] = 'https://geomag.usgs.gov/ws/edge/?'
+    if optionsdict.get('baselinebase','') == '':
+        optionsdict['baselinebase'] = 'https://geomag.usgs.gov/baselines/observation.json.php?'
     if optionsdict.get('basefilter','') == '':
         optionsdict['basefilter'] = 'spline'
     if optionsdict.get('dipathlist','') == '':
@@ -1015,7 +1019,7 @@ class MainFrame(wx.Frame):
         #        DI Page
         # --------------------------
         self.Bind(wx.EVT_BUTTON, self.onLoadDI, self.menu_p.abs_page.loadDIButton)
-        self.Bind(wx.EVT_BUTTON, self.onLoadUSGSBaselines, self.menu_p.abs_page.loadUSGSButton)
+        self.Bind(wx.EVT_BUTTON, self.onLoadWebserviceBaselines, self.menu_p.abs_page.loadWebserviceButton)
         self.Bind(wx.EVT_BUTTON, self.onDefineVario, self.menu_p.abs_page.defineVarioButton)
         self.Bind(wx.EVT_BUTTON, self.onDefineScalar, self.menu_p.abs_page.defineScalarButton)
         self.Bind(wx.EVT_BUTTON, self.onDIAnalyze, self.menu_p.abs_page.AnalyzeButton)
@@ -1187,7 +1191,7 @@ class MainFrame(wx.Frame):
         # DI
         self.menu_p.abs_page.AnalyzeButton.Disable()       # activate if DI data is present i.e. diTextCtrl contains data
         self.menu_p.abs_page.loadDIButton.Enable()         # remain enabled
-        self.menu_p.abs_page.loadUSGSButton.Enable()       # remain enabled
+        self.menu_p.abs_page.loadWebserviceButton.Enable() # remain enabled
         self.menu_p.abs_page.defineVarioButton.Enable()    # remain enabled
         self.menu_p.abs_page.defineScalarButton.Enable()   # remain enabled
         if PLATFORM.startswith('linux'):
@@ -1199,6 +1203,7 @@ class MainFrame(wx.Frame):
         self.menu_p.abs_page.SaveLogButton.Disable()      # Activate if log contains text
         self.menu_p.abs_page.varioTextCtrl.SetValue(self.options.get('divariopath',''))
         self.menu_p.abs_page.scalarTextCtrl.SetValue(self.options.get('discalarpath',''))
+        self.menu_p.abs_page.loadWebserviceButton.Disable()
 
         # Analysis
         self.menu_p.ana_page.rotationButton.Disable()      # if xyz magnetic data
@@ -1412,7 +1417,7 @@ class MainFrame(wx.Frame):
 
         # ----------------------------------------
         # absolutes page
-        self.menu_p.abs_page.loadUSGSButton.Enable()      # always
+        self.menu_p.abs_page.loadWebserviceButton.Enable() # always
 
         # Selective fields
         # ----------------------------------------
@@ -1970,7 +1975,10 @@ Suite 330, Boston, MA  02111-1307  USA"""
         ids = self.options.get('edgeid',[])
         types = self.options.get('edgetype',[])
         formats = self.options.get('edgeformat',[])
-        dlg = ConnectWebServiceDialog(None, title='Create and Open URL for a Web Service', ids=ids, types=types, formats=formats)
+        base = self.options.get('intermagnetbase','')
+        dlg = ConnectWebServiceDialog(None,
+                title='Create and Open URL for a Web Service', ids=ids,
+                types=types, formats=formats, base=base)
         if dlg.ShowModal() == wx.ID_OK:
             elements = dlg.elements
             end = dlg.endtime
@@ -2010,7 +2018,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             else:
                 msg = wx.MessageDialog(self, "Invalid time range!\n"
                     "The end time occurs before the start time.\n",
-                    "ConnectEdge", wx.OK|wx.ICON_INFORMATION)
+                    "ConnectWebservice", wx.OK|wx.ICON_INFORMATION)
                 msg.ShowModal()
                 self.changeStatusbar("Loading from web service failed ... Ready")
                 msg.Destroy()
@@ -2343,7 +2351,11 @@ Suite 330, Boston, MA  02111-1307  USA"""
                 self.options['dbname'] = 'None'
             else:
                 self.options['dbname'] = db
-            self.options['dirname']=dlg.dirnameTextCtrl.GetValue()
+            webservice = dlg.webserviceURLTextCtrl.GetValue()
+            self.options['intermagnetbase'] = webservice
+            baselines = dlg.webserviceBaselinesTextCtrl.GetValue()
+            self.options['baselinebase'] = baselines
+            self.options['dirname'] = dlg.dirnameTextCtrl.GetValue()
 
             self.options['stationid']=dlg.stationidTextCtrl.GetValue()
 
@@ -5204,7 +5216,7 @@ Suite 330, Boston, MA  02111-1307  USA"""
             self.menu_p.abs_page.AnalyzeButton.Enable()
         dlg.Destroy()
 
-    def onLoadUSGSBaselines(self,event):
+    def onLoadWebserviceBaselines(self,event):
         di_db = []
         # remove defaults
         dlg = DISetParameterDialog(None, title='Set Parameter')
@@ -5220,11 +5232,15 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.options['dideltaF'] = dlg.deltaFTextCtrl.GetValue()
         self.options['diexpI']=''
         dlg.Destroy()
-        dlg = LoadUSGSDialog(None, title='Get USGS data', stream=self.plotstream)
+        dlg = LoadWebserviceBaselinesDialog(None, title='Get Webservice Data',
+                stream=self.plotstream, options=self.options)
         if dlg.ShowModal() == wx.ID_OK:
             starttime = dlg.starttime
             endtime = dlg.endtime
-            di_db = self.getUrls(starttime, endtime)
+            base = dlg.base
+            if dlg.includemeasurementsCheckBox.IsChecked():
+                include = True
+            di_db = self.getUrls(starttime, endtime, base, include)
             if endtime >= starttime:
                 self.menu_p.rep_page.logMsg("- loaded DI data")
                 try:
@@ -5239,29 +5255,32 @@ Suite 330, Boston, MA  02111-1307  USA"""
                 self.menu_p.abs_page.scalarTextCtrl.SetValue(vario_scalar)
                 self.options['discalarpath'] = vario_scalar
                 self.menu_p.abs_page.AnalyzeButton.Enable()
-                self.options['usgsdata'] = True
+                self.options['webservicedata'] = True
+                if dlg.jsonFormatCheckBox.IsChecked():
+                    self.options['jsonformat'] = True
                 if dlg.analyzeCheckBox.IsChecked():
                     self.onDIAnalyze()
             else:
                 dlg = wx.MessageDialog(self, "Could not load data!\n"
                             "Entered dates are out of order.\n"
                             "Reverting to original dates.\n",
-                            "LoadUSGSData", wx.OK|wx.ICON_INFORMATION)
+                            "LoadWebserviceData", wx.OK|wx.ICON_INFORMATION)
                 dlg.ShowModal()
                 dlg.Destroy()
 
-    def getUrls(self, starttime, endtime):
+    def getUrls(self, starttime, endtime, base, include):
         urls = []
         obsid = self.plotstream.header.get('StationID', '')
         # Dates from pickers
-        base = 'https://geomag.usgs.gov/baselines/observation.json.php?'
         time = starttime
         while time < endtime:
             start = time.strftime('%Y-%m-%d')
             time = time + timedelta(days=1)
             end = time.strftime('%Y-%m-%d')
             url = base + 'observatory=' + obsid + '&starttime=' + \
-                start + '&endtime=' + end + '&includemeasurements=true'
+                start + '&endtime=' + end
+            if include == True:
+                url += '&includemeasurements=true'
             urls += [url]
         return urls
 
@@ -5306,10 +5325,11 @@ Suite 330, Boston, MA  02111-1307  USA"""
         # Get parameters from options
         divariopath = self.options.get('divariopath','')
         discalarpath = self.options.get('discalarpath','')
-        stationid= self.options.get('stationid','')
-        abstype= self.options.get('ditype','')
-        azimuth= self.options.get('diazimuth','')
-        usgsdata= self.options.get('usgsdata',False)
+        stationid = self.options.get('stationid','')
+        abstype = self.options.get('ditype','')
+        azimuth = self.options.get('diazimuth','')
+        webservicedata = self.options.get('webservicedata',False)
+        jsonformat = self.options.get('jsonformat', False)
         try:
             expD= float(self.options.get('diexpD','0.0'))
         except:
@@ -5346,18 +5366,36 @@ Suite 330, Boston, MA  02111-1307  USA"""
             sys.stdout=redir
 
             # TODO include deltaD, deltaI, beta into the absoluteAnalysisCall
-            if usgsdata == True:
+            if webservicedata == True:
                 if not azimuth == '':
                     azimuth = float(azimuth)
-                    absstream = absoluteAnalysis(self.dipathlist,divariopath,discalarpath, expD=expD,expI=expI,stationid=stationid,abstype=abstype, azimuth=azimuth,alpha=alpha,beta=beta,deltaD=deltaD,deltaI=deltaI,deltaF=deltaF, datastream=self.plotstream)
+                    absstream = absoluteAnalysis(self.dipathlist, divariopath,
+                            discalarpath, expD=expD, expI=expI,
+                            stationid=stationid, abstype=abstype,
+                            azimuth=azimuth, alpha=alpha, beta=beta,
+                            deltaD=deltaD, deltaI=deltaI, deltaF=deltaF,
+                            datastream=self.plotstream,
+                            jsonformat=jsonformat)
                 else:
-                    absstream = absoluteAnalysis(self.dipathlist,divariopath,discalarpath, expD=expD,expI=expI,stationid=stationid,alpha=alpha,beta=beta,deltaD=deltaD,deltaI=deltaI,deltaF=deltaF, datastream=self.plotstream)
+                    absstream = absoluteAnalysis(self.dipathlist, divariopath,
+                            discalarpath, expD=expD, expI=expI,
+                            stationid=stationid, alpha=alpha, beta=beta,
+                            deltaD=deltaD, deltaI=deltaI, deltaF=deltaF,
+                            datastream=self.plotstream,
+                            jsonformat=jsonformat)
             else:
                 if not azimuth == '':
                     azimuth = float(azimuth)
-                    absstream = absoluteAnalysis(self.dipathlist,divariopath,discalarpath, expD=expD,expI=expI,stationid=stationid,abstype=abstype, azimuth=azimuth,alpha=alpha,beta=beta,deltaD=deltaD,deltaI=deltaI,deltaF=deltaF)
+                    absstream = absoluteAnalysis(self.dipathlist, divariopath,
+                            discalarpath, expD=expD, expI=expI,
+                            stationid=stationid, abstype=abstype,
+                            azimuth=azimuth, alpha=alpha, beta=beta,
+                            deltaD=deltaD, deltaI=deltaI, deltaF=deltaF)
                 else:
-                    absstream = absoluteAnalysis(self.dipathlist,divariopath,discalarpath, expD=expD,expI=expI,stationid=stationid,alpha=alpha,beta=beta,deltaD=deltaD,deltaI=deltaI,deltaF=deltaF)
+                    absstream = absoluteAnalysis(self.dipathlist,
+                            divariopath, discalarpath, expD=expD, expI=expI,
+                            stationid=stationid, alpha=alpha, beta=beta,
+                            deltaD=deltaD, deltaI=deltaI, deltaF=deltaF)
             sys.stdout=prev_redir
             # only if more than one point is selected
             self.changeStatusbar("Ready")

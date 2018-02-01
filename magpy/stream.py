@@ -10329,8 +10329,9 @@ def read(path_or_url=None, dataformat=None, headonly=False, **kwargs):
                 logger.error("read: No file matching file pattern: %s" % pathname)
                 raise Exception("Cannot read non-existent file!")
             elif not has_magic(pathname) and not os.path.isfile(pathname):
-                logger.error("read: No such file or directory: %s" % pathname)
-                raise Exception("Cannot read non-existent file!")
+                if "&" not in pathname and "=" not in pathname:
+                    logger.error("read: No such file or directory: %s" % pathname)
+                    raise Exception("Cannot read non-existent file!")
             # Only raise error if no starttime/endtime has been set. This
             # will return an empty stream if the user chose a time window with
             # no data in it.
@@ -10421,7 +10422,7 @@ def _read(filename, dataformat=None, headonly=False, **kwargs):
 
 def readWebServiceData(path_or_url, starttime, endtime, elements,
         sampling_period, samplelimit):
-    """Get timeseries data from a webservice.
+    """Get timeseries data from a web service.
         Can be used to circumvent sample limits for data requested from a
         web service.
         Parameters

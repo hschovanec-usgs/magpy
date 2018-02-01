@@ -117,29 +117,30 @@ class ConnectWebServiceDialog(wx.Dialog):
     Helper method to generate urls and connect to a WebService
     Select shown keys
     """
-    def __init__(self, parent, title, ids, types, formats):
+    def __init__(self, parent, title, ids, types, formats, base):
         super(ConnectWebServiceDialog, self).__init__(parent=parent,
             title=title, size=(400, 600))
         self.ids = ids
         self.types = types
         self.formats = formats
+        self.base = base
         self.createControls()
         self.doLayout()
         self.bindControls()
         self.createUrl()
 
     def createControls(self):
-        base = 'https://geomag.usgs.gov/ws/edge/?'
-        self.baseLabel = wx.StaticText(self, label='Base URL:',size=(400,20))
-        self.baseTextCtrl = wx.TextCtrl(self, value=base,size=(400,25))
+        self.baseLabel = wx.StaticText(self, label='Base URL:', size=(400,20))
+        self.baseTextCtrl = wx.TextCtrl(self, value=self.base, size=(400,25))
         self.obsIDLabel = wx.StaticText(self,
                 label="Observatory ID:", size=(400,20))
         self.idComboBox = wx.ComboBox(self, choices=self.ids,
-            style=wx.CB_DROPDOWN,size=(400,25))
-        self.formatLabel = wx.StaticText(self, label="Format: ",size=(400,20))
+            style=wx.CB_DROPDOWN, size=(400,25))
+        self.formatLabel = wx.StaticText(self, label="Format: ",
+                size=(400,20))
         self.formatComboBox = wx.ComboBox(self, choices=self.formats,
-            style=wx.CB_DROPDOWN,size=(400,25))
-        self.typeLabel = wx.StaticText(self, label="Type: ",size=(400,20))
+            style=wx.CB_DROPDOWN, size=(400,25))
+        self.typeLabel = wx.StaticText(self, label="Type: ", size=(400,20))
         self.typeComboBox = wx.ComboBox(self, choices=self.types,
             style=wx.CB_DROPDOWN, size=(400,25))
         self.sampleLabel = wx.StaticText(self,
@@ -161,7 +162,7 @@ class ConnectWebServiceDialog(wx.Dialog):
                 label="Comma separated list of requested elements: ",
                 size=(400,20))
         self.elementsTextCtrl = wx.TextCtrl(self,
-                value='X,Y,Z,F',size=(400,25))
+                value='X,Y,Z,F', size=(400,25))
         self.generatedLabel = wx.StaticText(self, label="Generated URL:",
                 size=(400,20))
         self.generatedTextCtrl = wx.TextCtrl(self, value='', size=(400,25))
@@ -169,7 +170,7 @@ class ConnectWebServiceDialog(wx.Dialog):
                 label="Sample Limit (0 if no limit. 345600 for USGS default.): ",
                 size=(400,25))
         self.sampleLimitTextCtrl = wx.TextCtrl(self,
-                value='345600',size=(400,25))
+                value='345600', size=(400,25))
         self.okButton = wx.Button(self, wx.ID_OK, label='OK', size=(400,25))
         self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel',
                 size=(400,25))
@@ -768,41 +769,71 @@ class OptionsInitDialog(wx.Dialog):
 
     # Widgets
     def createControls(self):
-        # single anaylsis
-        # db = mysql.connect (host = "localhost",user = "user",passwd = "secret",db = "mysqldb")
-        self.dboptLabel = wx.StaticText(self, label="Database:",size=(160,30))
-        self.basicLabel = wx.StaticText(self, label="Basics:",size=(160,30))
-        self.calcLabel = wx.StaticText(self, label="Calculation:",size=(160,30))
-        self.hostLabel = wx.StaticText(self, label="Host",size=(160,30))
-        self.hostTextCtrl = wx.TextCtrl(self,value=self.options.get('host','localhost'),size=(160,30))
-        self.userLabel = wx.StaticText(self, label="User",size=(160,30))
-        self.userTextCtrl = wx.TextCtrl(self, value=self.options.get('user','Max'),size=(160,30))
-        self.passwdLabel = wx.StaticText(self, label="Password",size=(160,30))
-        self.passwdTextCtrl = wx.TextCtrl(self, value=self.options.get('passwd','Secret'),style=wx.TE_PASSWORD,size=(160,30))
-        self.dbLabel = wx.StaticText(self, label="Database",size=(160,30))
-        self.dbTextCtrl = wx.TextCtrl(self, value=self.options.get('dbname','MyDB'),size=(160,30))
-        self.dirnameLabel = wx.StaticText(self, label="Default directory",size=(160,30))
-        self.dirnameTextCtrl = wx.TextCtrl(self, value=self.options.get('dirname',''),size=(160,30))
-
-        self.stationidLabel = wx.StaticText(self, label="Station ID",size=(160,30))
-        self.stationidTextCtrl = wx.TextCtrl(self, value=self.options.get('stationid','WIC'),size=(160,30))
-
-        self.fitfunctionLabel = wx.StaticText(self, label="Fit function",size=(160,30))
+        webservice = self.options.get('intermagnetbase',
+                'https://geomag.usgs.gov/ws/edge/?')
+        baselines = self.options.get('baselinebase',
+                'https://geomag.usgs.gov/baselines/observation.json.php?')
+        self.dboptLabel = wx.StaticText(self, label="Database:",
+                size=(160, 30))
+        self.basicLabel = wx.StaticText(self, label="Basics:", size=(160, 30))
+        self.calcLabel = wx.StaticText(self, label="Calculation:",
+                size=(160, 30))
+        self.hostLabel = wx.StaticText(self, label="Host", size=(160, 30))
+        self.hostTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('host', 'localhost'), size=(160, 30))
+        self.userLabel = wx.StaticText(self, label="User", size=(160, 30))
+        self.userTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('user', 'Max'), size=(160, 30))
+        self.passwdLabel = wx.StaticText(self, label="Password",
+                size=(160, 30))
+        self.passwdTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('passwd', 'Secret'),
+                style=wx.TE_PASSWORD,size=(160, 30))
+        self.dbLabel = wx.StaticText(self, label="Database", size=(160, 30))
+        self.dbTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('dbname', 'MyDB'), size=(160, 30))
+        self.dirnameLabel = wx.StaticText(self, label="Default directory",
+                size=(160, 30))
+        self.dirnameTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('dirname', ''), size=(160, 30))
+        self.webserviceURLLabel = wx.StaticText(self,
+                label="Default intermagnet webservice baselines URL",
+                size=(160, 35))
+        self.webserviceURLTextCtrl = wx.TextCtrl(self, value=webservice,
+                size=(160, 30))
+        self.webserviceBaselinesLabel = wx.StaticText(self,
+                label="Default baseline webservice base URL", size=(160, 35))
+        self.webserviceBaselinesTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('baselinebase',''), size=(160, 30))
+        self.stationidLabel = wx.StaticText(self, label="Station ID",
+                size=(160, 30))
+        self.stationidTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('stationid', 'WIC'), size=(160, 30))
+        self.fitfunctionLabel = wx.StaticText(self, label="Fit function",
+                size=(160, 30))
         self.fitfunctionComboBox = wx.ComboBox(self, choices=self.funclist,
-                              style=wx.CB_DROPDOWN, value=self.options.get('fitfunction','spline'),size=(160,-1))
-        self.fitknotstepLabel = wx.StaticText(self, label="Knotstep (spline)",size=(160,30))
-        self.fitknotstepTextCtrl = wx.TextCtrl(self, value=self.options.get('fitknotstep','0.3'),size=(160,30))
-        self.fitdegreeLabel = wx.StaticText(self, label="Degree (polynom)",size=(160,30))
-        self.fitdegreeTextCtrl = wx.TextCtrl(self, value=self.options.get('fitdegree','5'),size=(160,30))
-        self.bookmarksLabel = wx.StaticText(self, label="Favorite URLs",size=(160,30))
-        bm = self.options.get('bookmarks',['http://www.intermagnet.org/test/ws/?id=BOU'])
-        self.bookmarksComboBox = wx.ComboBox(self, choices=bm,style=wx.CB_DROPDOWN, value=bm[0],size=(160,-1))
-
-        self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel',size=(160,30))
-        self.saveButton = wx.Button(self, wx.ID_OK, label='Save',size=(160,30))
-
-        #self.bookmarksComboBox.Disable()
-
+                style=wx.CB_DROPDOWN,
+                value=self.options.get('fitfunction', 'spline'),
+                size=(160, -1))
+        self.fitknotstepLabel = wx.StaticText(self, label="Knotstep (spline)",
+                size=(160, 30))
+        self.fitknotstepTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('fitknotstep', '0.3'),
+                size=(160, 30))
+        self.fitdegreeLabel = wx.StaticText(self, label="Degree (polynom)",
+                size=(160, 30))
+        self.fitdegreeTextCtrl = wx.TextCtrl(self,
+                value=self.options.get('fitdegree', '5'), size=(160, 30))
+        self.bookmarksLabel = wx.StaticText(self, label="Favorite URLs",
+                size=(160, 30))
+        bm = self.options.get('bookmarks',
+                ['http://www.intermagnet.org/test/ws/?id=BOU'])
+        self.bookmarksComboBox = wx.ComboBox(self, choices=bm,
+                style=wx.CB_DROPDOWN, value=bm[0], size=(160, -1))
+        self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel',
+                size=(160, 30))
+        self.saveButton = wx.Button(self, wx.ID_OK, label='Save',
+                size=(160, 30))
         f = self.dboptLabel.GetFont()
         newf = wx.Font(14, wx.DECORATIVE, wx.ITALIC, wx.BOLD)
         self.dboptLabel.SetFont(newf)
@@ -832,22 +863,29 @@ class OptionsInitDialog(wx.Dialog):
                  (self.passwdTextCtrl, expandOption),
                  (self.dbTextCtrl, expandOption),
                  (self.basicLabel, noOptions),
-                  emptySpace,
-                  emptySpace,
-                  emptySpace,
+                 emptySpace,
+                 emptySpace,
+                 emptySpace,
                  (self.dirnameLabel, noOptions),
+                 (self.webserviceURLLabel, noOptions),
+                 (self.webserviceBaselinesLabel, noOptions),
                  (self.stationidLabel, noOptions),
-                  emptySpace,
-                 (self.bookmarksLabel, noOptions),
                  (self.dirnameTextCtrl, expandOption),
+                 (self.webserviceURLTextCtrl, expandOption),
+                 (self.webserviceBaselinesTextCtrl, expandOption),
                  (self.stationidTextCtrl, expandOption),
-                  emptySpace,
+                 (self.bookmarksLabel, noOptions),
+                 emptySpace,
+                 emptySpace,
+                 emptySpace,
                  (self.bookmarksComboBox, noOptions),
+                 emptySpace,
+                 emptySpace,
+                 emptySpace,
                  (self.calcLabel, noOptions),
-                  emptySpace,
-                  emptySpace,
-                  emptySpace,
-                  emptySpace,
+                 emptySpace,
+                 emptySpace,
+                 emptySpace,
                  (self.fitfunctionLabel, noOptions),
                  (self.fitknotstepLabel, noOptions),
                  (self.fitdegreeLabel, noOptions),
@@ -855,9 +893,9 @@ class OptionsInitDialog(wx.Dialog):
                  (self.fitfunctionComboBox, noOptions),
                  (self.fitknotstepTextCtrl, expandOption),
                  (self.fitdegreeTextCtrl, expandOption),
+                 emptySpace,
+                 emptySpace,
                  (self.saveButton, dict(flag=wx.ALIGN_CENTER)),
-                  emptySpace,
-                  emptySpace,
                  (self.closeButton, dict(flag=wx.ALIGN_CENTER))]
 
         # A GridSizer will contain the other controls:
@@ -2559,16 +2597,17 @@ class LoadDIDialog(wx.Dialog):
         dlg.Destroy()
         self.Close(True)
 
-class LoadUSGSDialog(wx.Dialog):
+class LoadWebserviceBaselinesDialog(wx.Dialog):
     """
     Dialog for Stream panel
-    Dialog for loading USGS absolutes data.
+    Dialog for loading web service absolutes data.
     """
 
-    def __init__(self, parent, title, stream):
-        super(LoadUSGSDialog, self).__init__(parent=parent,
+    def __init__(self, parent, title, stream, options):
+        super(LoadWebserviceBaselinesDialog, self).__init__(parent=parent,
             title=title, size=(600, 600))
         self.stream = stream
+        self.options = options
         self.urls = []
         self.createControls()
         self.doLayout()
@@ -2576,17 +2615,17 @@ class LoadUSGSDialog(wx.Dialog):
 
     # Widgets
     def createControls(self):
-        dateinfo = ('Specify a date range of absolutes data to be obtain from the'
-                ' USGS absolutes web service. The start and end dates should'
+        dateinfo = ('Specify a date range of absolutes data to be obtain from'
+                ' an absolutes web service. The start and end dates should'
                 ' encompass the plotted data. Note: the default start and end'
                 ' dates correspond to thhe beginning and end of the plotted'
                 ' data.')
         extension_options = ['0 days', '1 day', '2 days', '3 days', '4 days',
                 '5 days', '6 days', '1 week', '2 weeks',  '3 weeks',
                 '4 weeks', '8 weeks']
-        extinfo = ('Extending the beginning and end of the time range will ensure'
-                ' that the scalar and variometer data is covered by the available'
-                ' baseline data. (3 days recommended)')
+        extinfo = ('Extending the beginning and end of the time range will '
+                'ensure that the scalar and variometer data is covered by '
+                'the available baseline data. (3 days recommended)')
         starttime = self.stream.ndarray[KEYLIST.index('time')][0]
         endtime = self.stream.ndarray[KEYLIST.index('time')][-1]
         starttime = num2date(starttime)
@@ -2595,19 +2634,37 @@ class LoadUSGSDialog(wx.Dialog):
         end = wx.DateTimeFromTimeT(time.mktime(endtime.timetuple()))
         self.starttime = starttime
         self.endtime = endtime
-        self.dateInfoText = wx.StaticText(self,-1,dateinfo,size=(500,65))
-        self.startText = wx.StaticText(self,-1,"Start Date:",size=(500,15))
-        self.startDatePicker = wx.DatePickerCtrl(self, dt=start,size=(500,25))
-        self.endText = wx.StaticText(self,-1,"End Date:",size=(500,15))
-        self.endDatePicker = wx.DatePickerCtrl(self, dt=end,size=(500,25))
-        self.extensionText = wx.StaticText(self,-1,"Extension amount:",size=(500,15))
-        self.extInfoText = wx.StaticText(self,-1,extinfo,size=(500,35))
+        self.base = self.options.get('baselinebase','')
+        self.measurements = True
+        self.baseLabel = wx.StaticText(self, -1, "Base URL for web service",
+                size=(500, 15))
+        self.baseTextCtrl = wx.TextCtrl(self, -1, self.base, size=(500, 25))
+        self.dateInfoText = wx.StaticText(self, -1, dateinfo, size=(500, 65))
+        self.startText = wx.StaticText(self, -1, "Start Date:",
+                size=(500, 15))
+        self.startDatePicker = wx.DatePickerCtrl(self, dt=start,
+                size=(500, 25))
+        self.endText = wx.StaticText(self, -1, "End Date:", size=(500, 15))
+        self.endDatePicker = wx.DatePickerCtrl(self, dt=end, size=(500, 25))
+        self.extensionText = wx.StaticText(self, -1, "Extension amount:",
+                size=(500, 15))
+        self.extInfoText = wx.StaticText(self, -1, extinfo, size=(500, 35))
         self.extensionComboBox = wx.Choice(self, choices=extension_options,
-            style=wx.CB_READONLY,size=(500,-1))
-        self.analyzeCheckBox = wx.CheckBox(self, label='Run Analysis Automatically',size=(500,25))
-        self.closeButton = wx.Button(self, wx.ID_CANCEL, label='Cancel',size=(500,25))
-        self.okButton = wx.Button(self, wx.ID_OK, label='Ok',size=(500,25))
+            style=wx.CB_READONLY, size=(500, -1))
+        self.analyzeCheckBox = wx.CheckBox(self,
+                label='Run Analysis Automatically', size=(500, 25))
+        self.includemeasurementsCheckBox = wx.CheckBox(self,
+                label='Include Measurements (Required for USGS baselines.)',
+                size=(500, 25))
+        self.jsonFormatCheckBox = wx.CheckBox(self,
+                label='JSON formatted data (Required for USGS baselines.)',
+                size=(500, 25))
+        self.closeButton = wx.Button(self, wx.ID_CANCEL,
+                label='Cancel', size=(500, 25))
+        self.okButton = wx.Button(self, wx.ID_OK, label='Ok', size=(500, 25))
         self.analyzeCheckBox.SetValue(True)
+        self.includemeasurementsCheckBox.SetValue(True)
+        self.jsonFormatCheckBox.SetValue(True)
 
     def doLayout(self):
         # A horizontal BoxSizer will contain the GridSizer (on the left)
@@ -2621,6 +2678,8 @@ class LoadUSGSDialog(wx.Dialog):
 
         # Add the controls to the sizers:
         controls = [(self.dateInfoText, noOptions),
+                (self.baseLabel, noOptions),
+                (self.baseTextCtrl, dict(flag=wx.ALIGN_CENTER)),
                 (self.startText, noOptions),
                 (self.startDatePicker, dict(flag=wx.ALIGN_CENTER)),
                 (self.endText, noOptions),
@@ -2630,6 +2689,8 @@ class LoadUSGSDialog(wx.Dialog):
                 (self.extInfoText, noOptions),
                 (self.extensionText, noOptions),
                 (self.extensionComboBox,  dict(flag=wx.ALIGN_CENTER)),
+                (self.includemeasurementsCheckBox, dict(flag=wx.ALIGN_CENTER)),
+                (self.jsonFormatCheckBox, dict(flag=wx.ALIGN_CENTER)),
                 (self.analyzeCheckBox, dict(flag=wx.ALIGN_CENTER)),
                 emptySpace,
                 emptySpace,
@@ -2654,6 +2715,10 @@ class LoadUSGSDialog(wx.Dialog):
         self.extensionComboBox.Bind(wx.EVT_CHOICE, self.onExtend)
         self.startDatePicker.Bind(wx.EVT_DATE_CHANGED, self.onChangeDate)
         self.endDatePicker.Bind(wx.EVT_DATE_CHANGED, self.onChangeDate)
+        self.baseTextCtrl.Bind(wx.EVT_TEXT, self.onChangeBase)
+
+    def onChangeBase(self, e):
+        self.base = self.baseTextCtrl.GetValue()
 
     def onChangeDate(self, e):
         starttime = self.startDatePicker.GetValue()

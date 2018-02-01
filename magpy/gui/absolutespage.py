@@ -33,7 +33,7 @@ class AbsolutePage(wx.Panel):
     def createControls(self):
         self.diLabel = wx.StaticText(self, label="DI files:")
         self.loadDIButton = wx.Button(self,-1,"Load DI data",size=(160,30))
-        self.loadUSGSButton = wx.Button(self,-1,"Load USGS data",size=(160,30))
+        self.loadWebserviceButton = wx.Button(self,-1,"Load Baselines",size=(160,30))
         self.diTextCtrl = wx.TextCtrl(self, value="None",size=(160,40),
                           style = wx.TE_MULTILINE|wx.TE_READONLY|wx.HSCROLL|wx.VSCROLL)
         self.defineVarioButton = wx.Button(self,-1,"Variometer path",size=(160,30))
@@ -87,7 +87,7 @@ class AbsolutePage(wx.Panel):
                  (self.varioTextCtrl, expandOption),
                  (self.defineScalarButton, dict(flag=wx.ALIGN_CENTER)),
                  (self.scalarTextCtrl, expandOption),
-                 (self.loadUSGSButton,dict(flag=wx.ALIGN_CENTER)),
+                 (self.loadWebserviceButton,dict(flag=wx.ALIGN_CENTER)),
                   emptySpace,
                   emptySpace,
                   emptySpace,

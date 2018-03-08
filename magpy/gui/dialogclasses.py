@@ -243,6 +243,8 @@ class ConnectWebServiceDialog(wx.Dialog):
 
     def createUrl(self):
         base = self.getBaseUrl()
+        if base[-1] != '?':
+            base = base + '?'
         datatype = self.getDataType()
         elements = self.getElements()
         endtime = self.getEndTime()
@@ -797,12 +799,12 @@ class OptionsInitDialog(wx.Dialog):
         self.dirnameTextCtrl = wx.TextCtrl(self,
                 value=self.options.get('dirname', ''), size=(160, 30))
         self.webserviceURLLabel = wx.StaticText(self,
-                label="Default intermagnet webservice baselines URL",
+                label="Default intermagnet webservice URL",
                 size=(160, 35))
         self.webserviceURLTextCtrl = wx.TextCtrl(self, value=webservice,
                 size=(160, 30))
         self.webserviceBaselinesLabel = wx.StaticText(self,
-                label="Default baseline webservice base URL", size=(160, 35))
+                label="Default baseline webservice URL", size=(160, 35))
         self.webserviceBaselinesTextCtrl = wx.TextCtrl(self,
                 value=self.options.get('baselinebase',''), size=(160, 30))
         self.stationidLabel = wx.StaticText(self, label="Station ID",

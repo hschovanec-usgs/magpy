@@ -1976,6 +1976,12 @@ Suite 330, Boston, MA  02111-1307  USA"""
         types = self.options.get('edgetype',[])
         formats = self.options.get('edgeformat',[])
         base = self.options.get('intermagnetbase','')
+        if base == '':
+            base = 'https://geomag.usgs.gov/ws/edge/?'
+            self.options['intermagnetbase'] = base
+            saveini(self.options)
+            inipara, check = loadini()
+            self.initParameter(inipara)
         dlg = ConnectWebServiceDialog(None,
                 title='Create and Open URL for a Web Service', ids=ids,
                 types=types, formats=formats, base=base)
@@ -5231,9 +5237,15 @@ Suite 330, Boston, MA  02111-1307  USA"""
         self.options['dialpha'] = dlg.alphaTextCtrl.GetValue()
         self.options['dideltaF'] = dlg.deltaFTextCtrl.GetValue()
         self.options['diexpI']=''
-        dlg.Destroy()
+        base = self.options.get('baselinebase', '')
+        if base == '':
+            base = 'https://geomag.usgs.gov/baselines/observation.json.php?'
+            self.options['baselinebase'] = base
+            saveini(self.options)
+            inipara, check = loadini()
+            self.initParameter(inipara)
         dlg = LoadWebserviceBaselinesDialog(None, title='Get Webservice Data',
-                stream=self.plotstream, options=self.options)
+                stream=self.plotstream, base=base)
         if dlg.ShowModal() == wx.ID_OK:
             starttime = dlg.starttime
             endtime = dlg.endtime

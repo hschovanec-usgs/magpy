@@ -2605,11 +2605,11 @@ class LoadWebserviceBaselinesDialog(wx.Dialog):
     Dialog for loading web service absolutes data.
     """
 
-    def __init__(self, parent, title, stream, options):
+    def __init__(self, parent, title, stream, base):
         super(LoadWebserviceBaselinesDialog, self).__init__(parent=parent,
             title=title, size=(600, 600))
         self.stream = stream
-        self.options = options
+        self.base = base
         self.urls = []
         self.createControls()
         self.doLayout()
@@ -2636,7 +2636,6 @@ class LoadWebserviceBaselinesDialog(wx.Dialog):
         end = wx.DateTimeFromTimeT(time.mktime(endtime.timetuple()))
         self.starttime = starttime
         self.endtime = endtime
-        self.base = self.options.get('baselinebase','')
         self.measurements = True
         self.baseLabel = wx.StaticText(self, -1, "Base URL for web service",
                 size=(500, 15))
